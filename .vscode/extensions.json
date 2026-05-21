@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "saoudrizwan.claude-dev",
+    "github.copilot",
+    "github.copilot-chat",
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "christian-kohler.path-intellisense",
+    "wix.vscode-import-cost",
+    "mikestead.dotenv",
+    "pkief.material-icon-theme"
+  ]
+}

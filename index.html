@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>عقاري</title>
+    <meta
+      name="description"
+      content="منصة عقارات السويداء — ابحث عن شقق ومنازل وأراضي للبيع والإيجار"
+    />
+    <meta
+      name="keywords"
+      content="عقارات, السويداء, شقق, منازل, أراضي, بيع, إيجار"
+    />
+    <meta name="author" content="عقاري" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://aqari.vercel.app" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <meta property="og:title" content="عقاري — عقارات السويداء" />
+    <meta
+      property="og:description"
+      content="منصة عقارات السويداء — ابحث عن شقق ومنازل وأراضي للبيع والإيجار"
+    />
+    <link rel="icon" href="/assets/logo.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#f59e0b" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="عقاري" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="عقاري" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      #root {
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js");
+        });
+      }
+    </script>
+  </body>
+</html>

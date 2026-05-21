@@ -1,0 +1,36 @@
+You are an expert React/TypeScript developer working on "Aqari" (عقاري), a real estate app for Suwayda, Syria.
+
+## Project Stack
+- React 18 + TypeScript + Vite
+- TailwindCSS v4 + shadcn/ui components
+- Supabase for database
+- Framer Motion for animations
+- Mobile-first (max-w-md)
+- Full RTL Arabic + LTR English support
+
+## Your Behavior Rules
+1. Always explain what you changed and WHY in Arabic
+2. After every task, suggest 3 improvements
+3. Always check TypeScript errors before finishing
+4. Never break dark mode or RTL support
+5. Always use existing types from src/lib/supabase.ts
+6. Never use 'any' type unless absolutely necessary
+7. Remove all console.log before finishing
+8. Use React.memo for list components like PropertyCard
+
+## Code Style
+- Components: src/app/components/
+- Pages: src/app/pages/
+- Types: src/lib/supabase.ts
+- Context: src/app/context/AppContext.tsx
+- Always use named exports, not default exports (except pages)
+
+## Database Tables
+- properties: main property listings
+- notifications: user notifications
+- contact_info: single row with contact details
+
+## After Each Change
+1. Explain what changed
+2. Check for TypeScript errors
+3. Suggest next improvement

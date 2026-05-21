@@ -1,0 +1,117 @@
+@import './fonts.css';
+@import "tailwindcss";
+
+@theme {
+  --font-arabic: "IBM Plex Sans Arabic", sans-serif;
+  --color-canvas: var(--bg-canvas);
+  --color-surface-0: var(--bg-surface-0);
+  --color-surface-1: var(--bg-surface-1);
+  --color-surface-2: var(--bg-surface-2);
+  --color-surface-3: var(--bg-surface-3);
+  --color-text-main: var(--text-main);
+  --color-text-sub: var(--text-sub);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+}
+
+:root {
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Light Theme - Ultra Clean & Crisp */
+  --bg-canvas: #f8fafc;
+  --bg-surface-0: #ffffff;
+  --bg-surface-1: #ffffff;
+  --bg-surface-2: #f1f5f9;
+  --bg-surface-3: #e2e8f0;
+  
+  --text-main: #0f172a;
+  --text-sub: #334155;
+  --text-muted: #64748b;
+  
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  
+  --toast-bg: rgba(255, 255, 255, 0.98);
+  --toast-color: #0f172a;
+  --toast-border: rgba(245, 158, 11, 0.3);
+}
+
+.dark {
+  /* Dark Theme - Deep, OLED-friendly, Luxurious */
+  --bg-canvas: #000000;
+  --bg-surface-0: #0a0a0a;
+  --bg-surface-1: #111111;
+  --bg-surface-2: #1f1f1f;
+  --bg-surface-3: #2d2d2d;
+  
+  --text-main: #f8fafc;
+  --text-sub: #cbd5e1;
+  --text-muted: #64748b;
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  
+  --toast-bg: rgba(10, 10, 10, 0.95);
+  --toast-color: #f8fafc;
+  --toast-border: rgba(245, 158, 11, 0.2);
+}
+
+body {
+  font-family: var(--font-arabic);
+  background-color: var(--color-canvas);
+  color: var(--color-text-main);
+  transition: background-color 0.6s var(--ease), color 0.6s var(--ease);
+}
+
+/* Glassmorphism Classes */
+.glass {
+  background: var(--bg-surface-0);
+}
+@supports (backdrop-filter: blur(20px)) {
+  .glass {
+    background: color-mix(in srgb, var(--bg-surface-0) 70%, transparent);
+    backdrop-filter: blur(24px) saturate(180%);
+  }
+}
+
+.glass-floating {
+  background: color-mix(in srgb, var(--bg-surface-1) 85%, transparent);
+  backdrop-filter: blur(30px) saturate(200%);
+}
+
+.amber-text-glow {
+  text-shadow: 0 0 40px rgba(245, 158, 11, 0.4), 0 2px 10px rgba(245, 158, 11, 0.2);
+}
+
+/* Premium Gradient Button */
+.btn-premium {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  color: #000;
+  box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.5);
+  transition: all 0.3s var(--ease);
+}
+.btn-premium:hover {
+  box-shadow: 0 12px 25px -6px rgba(245, 158, 11, 0.6);
+  transform: translateY(-2px);
+}
+.btn-premium:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Hide scrollbar completely but allow scrolling */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-text-muted) 30%, transparent);
+  border-radius: 4px;
+}
