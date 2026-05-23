@@ -374,7 +374,7 @@ export function HomePage() {
             <div className="grid gap-6">
               <AnimatePresence mode="popLayout">
                 {[1, 2, 3, 4].map((index) => (
-                  <PropertyCardSkeleton key={index} />
+                  <PropertyCardSkeleton key={`skeleton-${index}`} />
                 ))}
               </AnimatePresence>
             </div>
