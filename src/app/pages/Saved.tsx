@@ -24,7 +24,7 @@ export function SavedPage() {
           <button
             onClick={() => navigate("/home")}
             className="w-10 h-10 rounded-full bg-surface-1 border border-border-subtle flex items-center justify-center transition-all hover:bg-surface-2 active:scale-95 text-text-sub hover:text-text-main shadow-sm"
-            aria-label={lang === "ar" ? "عودة" : "Back"}
+            aria-label={t("saved_back")}
           >
             <ChevronRight
               className={`w-5 h-5 ${lang === "en" ? "rotate-180" : ""}`}

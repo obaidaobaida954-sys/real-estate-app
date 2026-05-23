@@ -1,6 +1,7 @@
 import React from "react";
 import { AlertCircle } from "lucide-react";
 import logger from "@/lib/logger";
+import { translate } from "@/lib/i18n-helpers";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -30,16 +31,17 @@ export class ErrorBoundary extends React.Component<
             <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/15 text-amber-500">
               <AlertCircle className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-extrabold mb-2">حدث خطأ</h1>
+            <h1 className="text-2xl font-extrabold mb-2">
+              {translate("error_boundary_title")}
+            </h1>
             <p className="text-text-muted mb-6 leading-relaxed">
-              حدث خطأ غير متوقع في التطبيق. الرجاء إعادة التحميل لمحاولة
-              الاستمرار.
+              {translate("error_boundary_message")}
             </p>
             <button
               onClick={() => window.location.reload()}
               className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-3 text-sm font-bold text-stone-900 shadow-lg hover:opacity-90 transition-all"
             >
-              إعادة المحاولة
+              {translate("error_boundary_retry")}
             </button>
           </div>
         </div>

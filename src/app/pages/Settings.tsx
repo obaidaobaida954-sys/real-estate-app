@@ -32,11 +32,7 @@ export function SettingsPage() {
   const handleLangToggle = (newLang: "ar" | "en") => {
     if (newLang !== lang) {
       setLang(newLang);
-      toast.success(
-        newLang === "ar"
-          ? "تم تغيير اللغة إلى العربية"
-          : "Language changed to English",
-      );
+      toast.success(t("lang_changed"));
     }
   };
 
@@ -204,7 +200,7 @@ export function SettingsPage() {
                   className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-500 rounded-[14px] shadow-md"
                 />
               )}
-              <span className="relative z-10">دولار $ / USD</span>
+              <span className="relative z-10">{t("currency_usd_label")}</span>
             </button>
             <button
               onClick={() => handleCurrencyToggle("syp")}
@@ -216,7 +212,7 @@ export function SettingsPage() {
                   className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-500 rounded-[14px] shadow-md"
                 />
               )}
-              <span className="relative z-10">ليرة سورية ل.س / SYP</span>
+              <span className="relative z-10">{t("currency_syp_label")}</span>
             </button>
           </motion.div>
         </section>
@@ -232,13 +228,7 @@ export function SettingsPage() {
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              onClick={() =>
-                toast.info(
-                  lang === "ar"
-                    ? "تطبيق عقاري — منصة عقارات السويداء الأولى"
-                    : "Aqari — The First Suwaida Real Estate Platform",
-                )
-              }
+              onClick={() => toast.info(t("about_toast"))}
               className="flex items-center justify-between w-full px-5 py-4 bg-surface-1 rounded-[20px] border border-border-subtle shadow-sm group"
             >
               <span className="font-bold text-text-main group-hover:text-amber-500 transition-colors">

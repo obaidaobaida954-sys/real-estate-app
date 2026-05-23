@@ -157,9 +157,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const list = data || [];
         setProperties((prev) => (append ? [...prev, ...list] : list));
         try {
-          const existingCache = JSON.parse(
-            localStorage.getItem("properties_cache") || '{"data":[]}',
-          ).data;
+          let existingCache: Property[] = [];
+          const rawCache = localStorage.getItem("properties_cache");
+          if (rawCache) {
+            const parsed = JSON.parse(rawCache) as { data?: Property[] };
+            if (Array.isArray(parsed.data)) {
+              existingCache = parsed.data;
+            }
+          }
           const merged = append ? [...existingCache, ...list] : list;
           localStorage.setItem(
             "properties_cache",
@@ -176,17 +181,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
           try {
             const cached = localStorage.getItem("properties_cache");
             if (cached) {
-              const parsed = JSON.parse(cached);
-              setProperties(parsed.data || []);
-              toast.error("لا يمكن تحميل البيانات حالياً - عرض نسخة مخبأة");
+              const parsed = JSON.parse(cached) as { data?: Property[] };
+              setProperties(Array.isArray(parsed.data) ? parsed.data : []);
+              toast.error(t("properties_cache_fallback"));
             } else {
               setProperties([]);
-              toast.error("خطأ في تحميل العقارات");
+              toast.error(t("properties_load_error"));
             }
           } catch (e) {
             logger.error("Failed to load properties from cache", e);
             setProperties([]);
-            toast.error("خطأ في تحميل العقارات");
+            toast.error(t("properties_load_error"));
           }
         } else {
           await new Promise((r) => setTimeout(r, 400 * attempts));
@@ -262,7 +267,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       logger.error("refreshContactInfo failed", err);
       try {
         const cached = localStorage.getItem("contact_cache");
-        if (cached) setContactInfo(JSON.parse(cached));
+        if (cached) {
+          const parsed = JSON.parse(cached) as ContactInfo;
+          setContactInfo(parsed);
+        }
       } catch (e) {
         logger.error("Failed to load contact cache", e);
       }

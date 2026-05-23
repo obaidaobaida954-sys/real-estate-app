@@ -79,6 +79,41 @@ interface PropertyFormProps {
   isLoading: boolean;
 }
 
+function UrlPreview({ url }: { url: string }) {
+  const { t } = useAppContext();
+  const [valid, setValid] = useState<boolean | null>(null);
+  React.useEffect(() => {
+    if (!url) {
+      setValid(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => setValid(true);
+    img.onerror = () => setValid(false);
+    img.src = url;
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [url]);
+  if (!url) return null;
+  if (valid === true)
+    return (
+      <img
+        src={url}
+        alt="preview"
+        className="h-32 rounded-lg object-cover"
+        loading="lazy"
+        decoding="async"
+      />
+    );
+  return (
+    <div className="h-32 rounded-lg bg-surface-2 border border-border-subtle flex items-center justify-center text-sm text-red-500">
+      {t("admin_image_invalid")}
+    </div>
+  );
+}
+
 function PropertyForm({
   data,
   onChange,
@@ -111,41 +146,6 @@ function PropertyForm({
       img.onerror = null;
     };
   }, [data.image_url]);
-
-  function UrlPreview({ url }: { url: string }) {
-    const { t: tPreview } = useAppContext();
-    const [valid, setValid] = useState<boolean | null>(null);
-    React.useEffect(() => {
-      if (!url) {
-        setValid(null);
-        return;
-      }
-      const img = new Image();
-      img.onload = () => setValid(true);
-      img.onerror = () => setValid(false);
-      img.src = url;
-      return () => {
-        img.onload = null;
-        img.onerror = null;
-      };
-    }, [url]);
-    if (!url) return null;
-    if (valid === true)
-      return (
-        <img
-          src={url}
-          alt="preview"
-          className="h-32 rounded-lg object-cover"
-          loading="lazy"
-          decoding="async"
-        />
-      );
-    return (
-      <div className="h-32 rounded-lg bg-surface-2 border border-border-subtle flex items-center justify-center text-sm text-red-500">
-        {tPreview("admin_image_invalid")}
-      </div>
-    );
-  }
 
   const addExtraImage = () => {
     if ((data.image_urls?.length || 0) < 5) {

@@ -9,7 +9,7 @@ import { useAppContext } from "../context/AppContext";
 type AuthMode = "signin" | "signup";
 
 export function AuthPage() {
-  const { t, lang } = useAppContext();
+  const { t } = useAppContext();
   const navigate = useNavigate();
   const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
@@ -31,18 +31,13 @@ export function AuthPage() {
     const nextErrors: typeof errors = {};
 
     if (!isValidEmail(email)) {
-      nextErrors.email =
-        lang === "ar" ? "البريد الإلكتروني غير صحيح" : "Invalid email address";
+      nextErrors.email = t("auth_invalid_email");
     }
     if (password.length < 8) {
-      nextErrors.password =
-        lang === "ar"
-          ? "كلمة المرور 8 أحرف على الأقل"
-          : "Password must be at least 8 characters";
+      nextErrors.password = t("auth_password_min");
     }
     if (mode === "signup" && password !== confirmPassword) {
-      nextErrors.confirmPassword =
-        lang === "ar" ? "كلمات المرور غير متطابقة" : "Passwords do not match";
+      nextErrors.confirmPassword = t("auth_password_mismatch");
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -56,9 +51,7 @@ export function AuthPage() {
       if (mode === "signin") {
         const { error } = await signIn(email, password);
         if (error) throw error;
-        toast.success(
-          lang === "ar" ? "تم تسجيل الدخول" : "Signed in successfully",
-        );
+        toast.success(t("auth_signin_success"));
         navigate("/home");
       } else {
         const { error } = await signUp(email, password);
@@ -129,9 +122,7 @@ export function AuthPage() {
         {showConfirmBanner && (
           <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
             <p className="text-amber-500 text-xs text-center font-medium">
-              {lang === "ar"
-                ? "تم إرسال رسالة تأكيد إلى بريدك — تحقق منها قبل تسجيل الدخول"
-                : "A confirmation email was sent — check your inbox before signing in"}
+              {t("auth_confirm_banner")}
             </p>
           </div>
         )}

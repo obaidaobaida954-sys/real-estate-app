@@ -12,9 +12,16 @@ export function NotificationBell() {
   );
 
   useEffect(() => {
-    const stored = localStorage.getItem("readNotifications");
-    if (stored) {
-      setReadNotifications(new Set(JSON.parse(stored)));
+    try {
+      const stored = localStorage.getItem("readNotifications");
+      if (stored) {
+        const parsed = JSON.parse(stored) as string[];
+        if (Array.isArray(parsed)) {
+          setReadNotifications(new Set(parsed));
+        }
+      }
+    } catch {
+      /* ignore corrupt read state */
     }
   }, []);
 

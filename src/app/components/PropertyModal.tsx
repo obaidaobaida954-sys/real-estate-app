@@ -99,15 +99,9 @@ export function PropertyModal({
 
     try {
       await navigator.clipboard.writeText(url);
-      toast.success(
-        lang === "ar"
-          ? "تم نسخ رابط العقار إلى الحافظة"
-          : "Property link copied to clipboard",
-      );
+      toast.success(t("share_copied"));
     } catch {
-      toast.error(
-        lang === "ar" ? "فشل نسخ الرابط" : "Failed to copy property link",
-      );
+      toast.error(t("share_failed"));
     }
   };
 
@@ -156,7 +150,8 @@ export function PropertyModal({
                         <ImageWithFallback
                           src={src}
                           alt={`${title} ${idx + 1}`}
-                          className="w-full h-full object-cover opacity-90"
+                          className="w-full h-full object-cover"
+                          fadeIn
                         />
                       </div>
                     ))}
@@ -186,7 +181,7 @@ export function PropertyModal({
                 <button
                   className="absolute top-5 right-5 w-10 h-10 rounded-full bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center z-20 transition-transform hover:scale-110 active:scale-90 text-white hover:text-amber-500"
                   onClick={onClose}
-                  aria-label={lang === "ar" ? "إغلاق" : "Close"}
+                  aria-label={t("close")}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -202,15 +197,7 @@ export function PropertyModal({
                   <button
                     className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center transition-transform hover:scale-110 active:scale-90"
                     onClick={() => toggleFavorite(property.id)}
-                    aria-label={
-                      isFav
-                        ? lang === "ar"
-                          ? "إزالة من المفضلة"
-                          : "Remove from favorites"
-                        : lang === "ar"
-                          ? "أضف للمفضلة"
-                          : "Add to favorites"
-                    }
+                    aria-label={isFav ? t("fav_remove") : t("fav_add")}
                     aria-pressed={isFav}
                   >
                     <Heart
@@ -321,10 +308,10 @@ export function PropertyModal({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-400 to-emerald-600 text-white font-medium shadow-md"
-                      aria-label={lang === "ar" ? "تواصل واتساب" : "WhatsApp"}
+                      aria-label={t("modal_whatsapp")}
                     >
                       <MessageCircle className="w-5 h-5" aria-hidden="true" />
-                      <span>{lang === "ar" ? "تواصل واتساب" : "WhatsApp"}</span>
+                      <span>{t("modal_whatsapp")}</span>
                     </a>
                   </div>
                 )}
@@ -350,14 +337,14 @@ export function PropertyModal({
                 className="flex-1 btn-premium py-4 rounded-[18px] font-bold text-base flex items-center justify-center gap-2"
               >
                 <Phone className="w-5 h-5" aria-hidden="true" />
-                {lang === "ar" ? "اتصال" : "Call"}
+                {t("modal_call")}
               </a>
               <a
                 href={`https://wa.me/${phoneValue.replace(/\D/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-14 h-14 shrink-0 bg-emerald-500 text-white rounded-[18px] flex items-center justify-center shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
-                aria-label={lang === "ar" ? "تواصل واتساب" : "WhatsApp"}
+                aria-label={t("modal_whatsapp")}
               >
                 <MessageCircle className="w-6 h-6" aria-hidden="true" />
               </a>

@@ -11,6 +11,7 @@ export function Layout() {
   }, [location.pathname]);
 
   return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center w-full">
     <div className="min-h-[100dvh] bg-canvas relative max-w-md mx-auto w-full shadow-2xl border-x border-border-subtle flex flex-col overflow-x-hidden">
       {/* Ambient Background Glows for Depth */}
       <div className="fixed top-0 right-0 w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none opacity-60 mix-blend-screen" />
@@ -24,6 +25,7 @@ export function Layout() {
       </div>
 
       <BottomNav />
+    </div>
     </div>
   );
 }

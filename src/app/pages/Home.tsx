@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Search,
   Map,
@@ -57,8 +57,23 @@ export function HomePage() {
     null,
   );
   const [priceFilterOpen, setPriceFilterOpen] = useState(false);
+  const sortMenuRef = useRef<HTMLDivElement>(null);
 
   usePageTitle("page_home");
+
+  useEffect(() => {
+    if (!sortMenuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sortMenuRef.current &&
+        !sortMenuRef.current.contains(event.target as Node)
+      ) {
+        setSortMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [sortMenuOpen, setSortMenuOpen]);
 
   React.useEffect(() => {
     setSearch(search);
@@ -110,21 +125,10 @@ export function HomePage() {
               transition={{ delay: 0.1 }}
               className="text-3xl font-extrabold text-text-main leading-snug mb-1"
             >
-              {lang === "ar" ? (
-                <>
-                  أهلاً بك في{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600">
-                    عقاري
-                  </span>
-                </>
-              ) : (
-                <>
-                  Welcome to{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600">
-                    Aqari
-                  </span>
-                </>
-              )}
+              {t("home_welcome_prefix")}{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600">
+                {t("app_name")}
+              </span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -313,7 +317,7 @@ export function HomePage() {
           <h3 className="text-xl font-bold text-text-main">
             {getDynamicTitle()}
           </h3>
-          <div className="relative">
+          <div className="relative" ref={sortMenuRef}>
             <button
               onClick={() => setSortMenuOpen(!sortMenuOpen)}
               className="flex items-center gap-1.5 text-sm text-text-sub hover:text-text-main transition-colors bg-surface-1 border border-border-subtle shadow-sm px-3 py-1.5 rounded-xl"
@@ -348,12 +352,8 @@ export function HomePage() {
                       {sortType === type && (
                         <span className="text-xs px-2 py-0.5 bg-amber-500/20 rounded-md">
                           {sortDir === "asc"
-                            ? lang === "ar"
-                              ? "تصاعدي ↑"
-                              : "Asc ↑"
-                            : lang === "ar"
-                              ? "تنازلي ↓"
-                              : "Desc ↓"}
+                            ? `${t("sort_asc")} ↑`
+                            : `${t("sort_desc")} ↓`}
                         </span>
                       )}
                     </button>

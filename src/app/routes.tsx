@@ -25,7 +25,7 @@ const AdminPage = lazy(() =>
   import("./pages/Admin").then((m) => ({ default: m.AdminPage })),
 );
 
-function withSuspense<T extends React.ComponentType<any>>(Comp: T) {
+function withSuspense<T extends React.ComponentType<object>>(Comp: T) {
   return (props: React.ComponentProps<T>) => (
     <Suspense
       fallback={

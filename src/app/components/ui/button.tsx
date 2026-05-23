@@ -46,8 +46,10 @@ function Button({
   }) {
   const Comp = asChild ? Slot : "button";
 
-  const finalProps = { ...props } as any;
-  if (!('type' in finalProps) && Comp === 'button') finalProps.type = 'button';
+  const finalProps: React.ComponentProps<typeof Comp> = { ...props };
+  if (!("type" in finalProps) && Comp === "button") {
+    (finalProps as React.ComponentProps<"button">).type = "button";
+  }
 
   return (
     <Comp

@@ -26,6 +26,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   if (e.request.url.includes("supabase.co")) return;
+  if (new URL(e.request.url).pathname.startsWith("/admin")) return;
   e.respondWith(
     fetch(e.request)
       .then((res) => {

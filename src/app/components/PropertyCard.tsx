@@ -32,11 +32,7 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
       onClick={onClick}
       role="button"
       tabIndex={0}
-      aria-label={
-        lang === "ar"
-          ? `عرض تفاصيل ${title} — ${formatPrice(property.price)}`
-          : `View details for ${title} — ${formatPrice(property.price)}`
-      }
+      aria-label={`${title} — ${formatPrice(property.price)}`}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -67,15 +63,7 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
               e.stopPropagation();
               toggleFavorite(property.id);
             }}
-            aria-label={
-              isFav
-                ? lang === "ar"
-                  ? "إزالة من المفضلة"
-                  : "Remove from favorites"
-                : lang === "ar"
-                  ? "أضف للمفضلة"
-                  : "Add to favorites"
-            }
+            aria-label={isFav ? t("fav_remove") : t("fav_add")}
             aria-pressed={isFav}
           >
             <Heart

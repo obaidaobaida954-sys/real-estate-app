@@ -85,7 +85,9 @@ export function ContactPage() {
 
         {/* Contact Methods */}
         <div className="space-y-4">
-          {contactMethods.map((method, index) => (
+          {contactMethods.map((method, index) => {
+            const isExternal = method.label === "contact_whatsapp";
+            return (
             <motion.a
               key={method.label}
               href={method.action}
@@ -93,8 +95,9 @@ export function ContactPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 + index * 0.1 }}
               className="block group"
-              target="_blank"
-              rel="noopener noreferrer"
+              {...(isExternal
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
               aria-label={`${t(method.label)}: ${method.value}`}
             >
               <div className="relative overflow-hidden rounded-[24px] bg-surface-1 border border-border-subtle p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)]">
@@ -129,7 +132,8 @@ export function ContactPage() {
                 </div>
               </div>
             </motion.a>
-          ))}
+          );
+          })}
         </div>
 
         {/* Footer Note */}
@@ -141,11 +145,9 @@ export function ContactPage() {
         >
           <p className="text-text-muted text-xs flex items-center justify-center gap-2">
             <MapPin className="w-3 h-3 text-text-muted" aria-hidden="true" />
-            السويداء، سوريا
+            {t("contact_location")}
           </p>
-          <p className="text-text-muted text-xs mt-1">
-            نستقبل استفساراتكم على مدار الساعة
-          </p>
+          <p className="text-text-muted text-xs mt-1">{t("contact_hours")}</p>
         </motion.div>
       </main>
     </AnimatedPage>

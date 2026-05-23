@@ -15,11 +15,13 @@ export function BottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[380px] pb-[env(safe-area-inset-bottom)]">
+    <div
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[380px]"
+      style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
+    >
       <nav
         aria-label={t("nav_main_label")}
         className="glass-floating border border-border-subtle rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] px-2 py-2 flex items-center justify-between"
-        style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
       >
         {navItems.map((item) => (
           <NavLink

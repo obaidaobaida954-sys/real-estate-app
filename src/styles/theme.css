@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-arabic: "IBM Plex Sans Arabic", sans-serif;
+  --font-arabic: "Tajawal", sans-serif;
   --color-canvas: var(--bg-canvas);
   --color-surface-0: var(--bg-surface-0);
   --color-surface-1: var(--bg-surface-1);
