@@ -25,8 +25,16 @@ import { motion, AnimatePresence } from "motion/react";
 const DEFAULT_PRICE_MAX = 10000000;
 
 export function HomePage() {
-  const { t, properties, loading, lang, loadMoreProperties, formatPrice } =
-    useAppContext();
+  const {
+    t,
+    properties,
+    loading,
+    lang,
+    favorites,
+    toggleFavorite,
+    loadMoreProperties,
+    formatPrice,
+  } = useAppContext();
   const [searchInput, setSearchInput] = useState("");
   const search = useDebounce(searchInput, 300);
 
@@ -48,7 +56,6 @@ export function HomePage() {
     page,
     setPage,
     hasMore,
-    isLoading,
     handleSort,
     resetAllFilters,
   } = usePropertyFilters(properties, lang);
@@ -370,14 +377,6 @@ export function HomePage() {
               <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
               <p className="text-text-muted text-sm">{t("loading")}</p>
             </div>
-          ) : isLoading ? (
-            <div className="grid gap-6">
-              <AnimatePresence mode="popLayout">
-                {[1, 2, 3, 4].map((index) => (
-                  <PropertyCardSkeleton key={`skeleton-${index}`} />
-                ))}
-              </AnimatePresence>
-            </div>
           ) : filteredProperties.length > 0 ? (
             <AnimatePresence mode="popLayout">
               {visibleProperties.map((p, index) => (
@@ -392,6 +391,22 @@ export function HomePage() {
                   <PropertyCard
                     property={p}
                     onClick={() => setSelectedProperty(p)}
+                    isFavorite={favorites.has(p.id)}
+                    onToggleFavorite={toggleFavorite}
+                    formattedPrice={formatPrice(p.price)}
+                    lang={lang}
+                    labels={{
+                      badge: t(
+                        p.type === "sale" ? "badge_sale" : "badge_rent",
+                      ),
+                      rooms: t("rooms"),
+                      baths: t("baths"),
+                      bath: t("bath"),
+                      sqm: t("sqm"),
+                      per_month: t("per_month"),
+                      fav_add: t("fav_add"),
+                      fav_remove: t("fav_remove"),
+                    }}
                   />
                 </motion.div>
               ))}

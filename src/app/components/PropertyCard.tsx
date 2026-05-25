@@ -1,7 +1,6 @@
 import React from "react";
 import { Heart, MapPin, Ruler, BedDouble, Bath } from "lucide-react";
 import { Property } from "@/lib/supabase";
-import { useAppContext } from "../context/AppContext";
 import { relativeDate } from "../utils/date";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -9,16 +8,36 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 interface PropertyCardProps {
   property: Property;
   onClick: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: (id: string) => void;
+  formattedPrice: string;
+  lang: "ar" | "en";
+  labels: {
+    badge: string;
+    rooms: string;
+    baths: string;
+    bath: string;
+    sqm: string;
+    per_month: string;
+    fav_add: string;
+    fav_remove: string;
+  };
 }
 
-function PropertyCardInner({ property, onClick }: PropertyCardProps) {
-  const { t, lang, favorites, toggleFavorite, formatPrice } = useAppContext();
-  const isFav = favorites.has(property.id);
+function PropertyCardInner({
+  property,
+  onClick,
+  isFavorite,
+  onToggleFavorite,
+  formattedPrice,
+  lang,
+  labels,
+}: PropertyCardProps) {
+  const isFav = isFavorite;
 
   const title = lang === "ar" ? property.title_ar : property.title_en;
   const location = lang === "ar" ? property.location_ar : property.location_en;
 
-  const badge = property.type === "sale" ? "badge_sale" : "badge_rent";
   const badgeColor =
     property.type === "sale"
       ? "bg-gradient-to-br from-amber-300 to-amber-500 text-stone-900"
@@ -32,7 +51,7 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
       onClick={onClick}
       role="button"
       tabIndex={0}
-      aria-label={`${title} — ${formatPrice(property.price)}`}
+      aria-label={`${title} — ${formattedPrice}`}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -53,7 +72,7 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
             <span
               className={`text-[10px] font-bold px-3 py-1.5 rounded-xl backdrop-blur-md shadow-lg ${badgeColor}`}
             >
-              {t(badge)}
+              {labels.badge}
             </span>
           </motion.div>
 
@@ -61,9 +80,9 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
             className="absolute top-3 left-3 w-10 h-10 rounded-full bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center z-20 transition-transform hover:scale-110 active:scale-90"
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(property.id);
+              onToggleFavorite(property.id);
             }}
-            aria-label={isFav ? t("fav_remove") : t("fav_add")}
+            aria-label={isFav ? labels.fav_remove : labels.fav_add}
             aria-pressed={isFav}
           >
             <Heart
@@ -77,10 +96,10 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
 
           <motion.div className="absolute bottom-3 right-4 z-20">
             <p className="text-2xl font-bold text-white drop-shadow-xl flex items-baseline gap-1">
-              {formatPrice(property.price)}
+              {formattedPrice}
               {property.type === "rent" && (
                 <span className="text-[10px] font-normal text-white/60 ml-1">
-                  {t("per_month")}
+                  {labels.per_month}
                 </span>
               )}
             </p>
@@ -103,7 +122,7 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
             <motion.div className="flex items-center gap-1.5 whitespace-nowrap">
               <BedDouble className="w-4 h-4 text-amber-500" />
               <span>
-                {property.rooms} {t("rooms")}
+                {property.rooms} {labels.rooms}
               </span>
             </motion.div>
           )}
@@ -129,7 +148,7 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
           <motion.div className="flex items-center gap-1.5 whitespace-nowrap">
             <Ruler className="w-4 h-4 text-amber-500" />
             <span>
-              {property.area} {t("sqm")}
+              {property.area} {labels.sqm}
             </span>
           </motion.div>
         </motion.div>
@@ -145,12 +164,12 @@ function PropertyCardInner({ property, onClick }: PropertyCardProps) {
 }
 
 const propsAreEqual = (prev: PropertyCardProps, next: PropertyCardProps) => {
-  if (prev.onClick !== next.onClick) return false;
-  try {
-    return JSON.stringify(prev.property) === JSON.stringify(next.property);
-  } catch {
-    return prev.property.id === next.property.id;
-  }
+  return (
+    prev.property.id === next.property.id &&
+    prev.isFavorite === next.isFavorite &&
+    prev.formattedPrice === next.formattedPrice &&
+    prev.lang === next.lang
+  );
 };
 
 export const PropertyCard = React.memo(PropertyCardInner, propsAreEqual);

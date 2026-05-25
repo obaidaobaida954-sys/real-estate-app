@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MapPin } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
+import logger from "@/lib/logger";
 
 interface PropertyMapProps {
   lat: number;
@@ -41,6 +42,7 @@ type GoogleMapsWindow = Window & {
 export default function PropertyMap({ lat, lng, title }: PropertyMapProps) {
   const { theme, t } = useAppContext();
   const mapRef = useRef<HTMLDivElement>(null);
+  const [mapError, setMapError] = useState(false);
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
@@ -97,8 +99,9 @@ export default function PropertyMap({ lat, lng, title }: PropertyMapProps) {
           title,
         });
       })
-      .catch(() => {
-        /* ignore map load errors */
+      .catch((err) => {
+        logger.error("Google Maps failed to load", err);
+        setMapError(true);
       });
 
     return () => {
@@ -108,11 +111,13 @@ export default function PropertyMap({ lat, lng, title }: PropertyMapProps) {
     };
   }, [apiKey, lat, lng, theme, title]);
 
-  if (!apiKey) {
+  if (!apiKey || mapError) {
     return (
       <div className="h-48 w-full rounded-2xl bg-surface-2 border border-border-subtle flex flex-col items-center justify-center gap-2 text-text-muted">
         <MapPin className="w-8 h-8 text-text-muted" />
-        <p className="text-text-muted text-sm">{t("map_unavailable")}</p>
+        <p className="text-text-muted text-sm">
+          {t("map_unavailable") || "تعذّر تحميل الخريطة"}
+        </p>
       </div>
     );
   }

@@ -1,7 +1,9 @@
 import React, { lazy, Suspense } from "react";
-import { createBrowserRouter, Navigate } from "react-router";
-import { Loader as LoaderIcon } from "lucide-react";
+import { createBrowserRouter } from "react-router";
+import { Navigate } from "react-router-dom";
+import { Loader as LoaderIcon, Loader2 } from "lucide-react";
 import { Layout } from "./Layout";
+import { supabase } from "@/lib/supabase";
 
 const Splash = lazy(() =>
   import("./pages/Splash").then((m) => ({ default: m.Splash })),
@@ -47,6 +49,42 @@ const ContactPageSusp = withSuspense(ContactPage);
 const SettingsPageSusp = withSuspense(SettingsPage);
 const AdminPageSusp = withSuspense(AdminPage);
 
+function ProtectedAdminRoute({ children }: { children: React.ReactNode }) {
+  const [status, setStatus] = React.useState<'loading' | 'ok' | 'denied'>('loading');
+
+  React.useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        setStatus('denied');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', data.session.user.id)
+        .single();
+
+      setStatus(profile?.is_admin === true ? 'ok' : 'denied');
+    })();
+  }, []);
+
+  if (status === 'loading') {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (status === 'denied') {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -58,7 +96,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    Component: AdminPageSusp,
+    element: (
+      <ProtectedAdminRoute>
+        <AdminPageSusp />
+      </ProtectedAdminRoute>
+    ),
   },
   {
     path: "/",

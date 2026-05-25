@@ -82,18 +82,24 @@ interface PropertyFormProps {
 function UrlPreview({ url }: { url: string }) {
   const { t } = useAppContext();
   const [valid, setValid] = useState<boolean | null>(null);
+  const debounceRef = React.useRef<number | null>(null);
+
   React.useEffect(() => {
     if (!url) {
       setValid(null);
       return;
     }
-    const img = new Image();
-    img.onload = () => setValid(true);
-    img.onerror = () => setValid(false);
-    img.src = url;
+    setValid(null);
+    debounceRef.current = window.setTimeout(() => {
+      const img = new Image();
+      img.onload = () => setValid(true);
+      img.onerror = () => setValid(false);
+      img.src = url;
+    }, 600);
     return () => {
-      img.onload = null;
-      img.onerror = null;
+      if (debounceRef.current !== null) {
+        window.clearTimeout(debounceRef.current);
+      }
     };
   }, [url]);
   if (!url) return null;
@@ -130,6 +136,7 @@ function PropertyForm({
   ) => onChange({ ...data, [key]: value });
 
   const [mainImageValid, setMainImageValid] = useState<boolean | null>(null);
+  const debounceRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     const url = data.image_url;
@@ -137,13 +144,17 @@ function PropertyForm({
       setMainImageValid(null);
       return;
     }
-    const img = new Image();
-    img.onload = () => setMainImageValid(true);
-    img.onerror = () => setMainImageValid(false);
-    img.src = url;
+    setMainImageValid(null);
+    debounceRef.current = window.setTimeout(() => {
+      const img = new Image();
+      img.onload = () => setMainImageValid(true);
+      img.onerror = () => setMainImageValid(false);
+      img.src = url;
+    }, 600);
     return () => {
-      img.onload = null;
-      img.onerror = null;
+      if (debounceRef.current !== null) {
+        window.clearTimeout(debounceRef.current);
+      }
     };
   }, [data.image_url]);
 
@@ -236,6 +247,7 @@ function PropertyForm({
 
       <input
         type="number"
+        min="1"
         placeholder={t("admin_ph_price")}
         value={data.price}
         onChange={(e) => set("price", Number(e.target.value))}
@@ -243,6 +255,7 @@ function PropertyForm({
       />
       <input
         type="number"
+        min="1"
         placeholder={t("admin_ph_area")}
         value={data.area}
         onChange={(e) => set("area", Number(e.target.value))}
@@ -251,6 +264,9 @@ function PropertyForm({
 
       <input
         type="number"
+        min="0"
+        max="100"
+        step="1"
         placeholder={t("admin_ph_rooms")}
         value={data.rooms}
         onChange={(e) => set("rooms", Number(e.target.value))}
@@ -258,6 +274,9 @@ function PropertyForm({
       />
       <input
         type="number"
+        min="0"
+        max="30"
+        step="1"
         placeholder={t("admin_ph_bathrooms")}
         value={data.bathrooms}
         onChange={(e) => set("bathrooms", Number(e.target.value))}
@@ -332,7 +351,7 @@ function PropertyForm({
           {t("admin_extra_images")} ({data.image_urls?.length || 0}/5)
         </div>
         {data.image_urls?.map((url, idx) => (
-          <div key={idx} className="flex gap-2 mb-2">
+          <div key={url || idx} className="flex gap-2 mb-2">
             <input
               type="text"
               placeholder={`${t("admin_extra_image")} ${idx + 1}`}
@@ -368,6 +387,8 @@ function PropertyForm({
       <input
         type="number"
         step="any"
+        min="-90"
+        max="90"
         placeholder={t("admin_ph_lat")}
         value={data.lat ?? ""}
         onChange={(e) =>
@@ -378,6 +399,8 @@ function PropertyForm({
       <input
         type="number"
         step="any"
+        min="-180"
+        max="180"
         placeholder={t("admin_ph_lng")}
         value={data.lng ?? ""}
         onChange={(e) =>
@@ -436,24 +459,70 @@ export function AdminPage() {
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const editFormRef = useRef<HTMLDivElement>(null);
 
+  const handleApiError = (err: unknown, userFacingKey: string) => {
+    logger.error("Admin API error", err);
+    toast.error(t(userFacingKey));
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await getSession();
-      const user = data.session?.user;
-      if (user && user.email === import.meta.env.VITE_ADMIN_EMAIL) {
-        setIsAuthenticated(true);
+      try {
+        const { data } = await getSession();
+        const session = data.session;
+        if (!session) {
+          setIsAuthenticated(false);
+          return;
+        }
+
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", session.user.id)
+          .single();
+
+        if (error) {
+          logger.error("Failed to verify admin profile", error);
+          setIsAuthenticated(false);
+          return;
+        }
+
+        setIsAuthenticated(profile?.is_admin === true);
+      } catch (err) {
+        logger.error("Failed to check admin authentication", err);
+        setIsAuthenticated(false);
+      } finally {
+        setAuthLoading(false);
       }
-      setAuthLoading(false);
     };
     checkAuth();
 
     const {
       data: { subscription },
-    } = onAuthStateChange((_event, session) => {
+    } = onAuthStateChange(async (_event, session) => {
       const user = session?.user;
-      setIsAuthenticated(
-        !!(user && user.email === import.meta.env.VITE_ADMIN_EMAIL),
-      );
+      if (!user) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", user.id)
+          .single();
+
+        if (error) {
+          logger.error("Failed to verify admin profile on auth change", error);
+          setIsAuthenticated(false);
+          return;
+        }
+
+        setIsAuthenticated(profile?.is_admin === true);
+      } catch (err) {
+        logger.error("Failed to handle auth state change", err);
+        setIsAuthenticated(false);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -514,45 +583,43 @@ export function AdminPage() {
   }, [editingProperty, activeTab]);
 
   const stats = useMemo(() => {
-    const total = properties.length;
-    const saleCount = properties.filter((p) => p.type === "sale").length;
-    const rentCount = properties.filter((p) => p.type === "rent").length;
-    const avgSalePrice =
-      saleCount > 0
-        ? Math.round(
-            properties
-              .filter((p) => p.type === "sale")
-              .reduce((a, b) => a + b.price, 0) / saleCount,
-          )
-        : 0;
-    const avgRentPrice =
-      rentCount > 0
-        ? Math.round(
-            properties
-              .filter((p) => p.type === "rent")
-              .reduce((a, b) => a + b.price, 0) / rentCount,
-          )
-        : 0;
-    const latestDate = properties.reduce((latest, property) => {
-      const createdAt = property.created_at
-        ? new Date(property.created_at).getTime()
-        : 0;
-      return createdAt > latest ? createdAt : latest;
-    }, 0);
-    const catCounts = {
-      house: properties.filter((p) => p.category === "house").length,
-      apartment: properties.filter((p) => p.category === "apartment").length,
-      commercial: properties.filter((p) => p.category === "commercial").length,
-      land: properties.filter((p) => p.category === "land").length,
+    const acc = {
+      total: 0,
+      saleCount: 0,
+      rentCount: 0,
+      saleSum: 0,
+      rentSum: 0,
+      latestDate: 0,
+      catCounts: {
+        house: 0,
+        apartment: 0,
+        commercial: 0,
+        land: 0,
+      } as Record<Property["category"], number>,
     };
+
+    for (const p of properties) {
+      acc.total++;
+      if (p.type === "sale") {
+        acc.saleCount++;
+        acc.saleSum += p.price;
+      } else {
+        acc.rentCount++;
+        acc.rentSum += p.price;
+      }
+
+      const t = new Date(p.created_at).getTime();
+      if (t > acc.latestDate) acc.latestDate = t;
+
+      if (p.category in acc.catCounts) {
+        acc.catCounts[p.category]++;
+      }
+    }
+
     return {
-      total,
-      saleCount,
-      rentCount,
-      avgSalePrice,
-      avgRentPrice,
-      latestDate,
-      catCounts,
+      ...acc,
+      avgSalePrice: acc.saleCount ? Math.round(acc.saleSum / acc.saleCount) : 0,
+      avgRentPrice: acc.rentCount ? Math.round(acc.rentSum / acc.rentCount) : 0,
     };
   }, [properties]);
 
@@ -590,6 +657,7 @@ export function AdminPage() {
 
   const applyTabSwitch = (tab: AdminTab) => {
     setPendingTab(null);
+    setPendingDeleteId(null);
     if (tab === "add") {
       setEditingProperty(null);
       setFormData(emptyProperty());
@@ -643,10 +711,7 @@ export function AdminPage() {
       await loadProperties();
       await refreshProperties();
     } catch (err: unknown) {
-      logger.error("Submit failed", err);
-      const message =
-        err instanceof Error ? err.message : t("admin_err_operation");
-      toast.error(message);
+      handleApiError(err, "admin_err_operation");
     } finally {
       setLoading(false);
     }
@@ -945,15 +1010,17 @@ export function AdminPage() {
                               }}
                               className="p-2 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors"
                               title={t("admin_edit")}
+                              aria-label={t("admin_edit")}
                             >
-                              <Edit2 className="w-4 h-4" />
+                              <Edit2 className="w-4 h-4" aria-hidden="true" />
                             </button>
                             <button
                               onClick={() => setPendingDeleteId(prop.id)}
                               className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
                               title={t("admin_delete")}
+                              aria-label={t("admin_delete")}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4" aria-hidden="true" />
                             </button>
                           </div>
                         )}
@@ -1005,8 +1072,9 @@ export function AdminPage() {
                         onClick={() => deleteNotification(notification.id)}
                         className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors shrink-0"
                         title={t("admin_delete")}
+                        aria-label={t("admin_delete")}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                   ))}

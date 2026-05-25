@@ -47,6 +47,7 @@ interface AppContextType {
   addNotification: (title: string, message: string) => void;
   contactInfo: ContactInfo | null;
   loading: boolean;
+  isLoadingMore: boolean;
   user: { id: string; email?: string } | null;
   isLoggedIn: boolean;
   refreshProperties: (
@@ -60,6 +61,23 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+const isValidPropertyArray = (data: unknown): data is Property[] => {
+  if (!Array.isArray(data) || data.length > 1000) return false;
+  return data.every(
+    (item) =>
+      item !== null &&
+      typeof item === "object" &&
+      typeof (item as Property).id === "string" &&
+      typeof (item as Property).title_ar === "string" &&
+      typeof (item as Property).price === "number" &&
+      (item as Property).price > 0 &&
+      ["sale", "rent"].includes((item as Property).type) &&
+      ["house", "apartment", "commercial", "land"].includes(
+        (item as Property).category,
+      ),
+  );
+};
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useLocalStorage<Language>("aqari_lang", "ar");
@@ -79,9 +97,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
 
   const favorites = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+  const formatters = useMemo(
+    () => ({
+      usd: new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }),
+      syp: new Intl.NumberFormat("ar-SY", {
+        style: "decimal",
+        maximumFractionDigits: 0,
+      }),
+    }),
+    [],
+  );
 
   const setLang = (newLang: Language) => {
     setLangState(newLang);
@@ -97,12 +130,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const formatPrice = useCallback(
     (price: number): string => {
-      if (currency === "usd") {
-        return `$${new Intl.NumberFormat("en-US").format(price)}`;
-      }
-      return `${new Intl.NumberFormat("ar-SY").format(price)} ل.س`;
+      if (currency === "usd") return formatters.usd.format(price);
+      return `${formatters.syp.format(price)} ل.س`;
     },
-    [currency],
+    [currency, formatters],
   );
 
   useEffect(() => {
@@ -155,24 +186,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .range(start, end);
         if (error) throw error;
         const list = data || [];
-        setProperties((prev) => (append ? [...prev, ...list] : list));
-        try {
-          let existingCache: Property[] = [];
-          const rawCache = localStorage.getItem("properties_cache");
-          if (rawCache) {
-            const parsed = JSON.parse(rawCache) as { data?: Property[] };
-            if (Array.isArray(parsed.data)) {
-              existingCache = parsed.data;
-            }
+        setProperties((prev) => {
+          const next = append ? [...prev, ...list] : list;
+          try {
+            localStorage.setItem(
+              "properties_cache",
+              JSON.stringify({ ts: Date.now(), data: next }),
+            );
+          } catch (e) {
+            logger.warn("cache write failed", e);
           }
-          const merged = append ? [...existingCache, ...list] : list;
-          localStorage.setItem(
-            "properties_cache",
-            JSON.stringify({ ts: Date.now(), data: merged }),
-          );
-        } catch (e) {
-          logger.warn("Failed to write properties cache", e);
-        }
+          return next;
+        });
         return;
       } catch (err) {
         attempts += 1;
@@ -182,7 +207,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const cached = localStorage.getItem("properties_cache");
             if (cached) {
               const parsed = JSON.parse(cached) as { data?: Property[] };
-              setProperties(Array.isArray(parsed.data) ? parsed.data : []);
+              setProperties(isValidPropertyArray(parsed.data) ? parsed.data : []);
               toast.error(t("properties_cache_fallback"));
             } else {
               setProperties([]);
@@ -278,7 +303,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const loadMoreProperties = async (page = 1, perPage = 12) => {
-    await refreshProperties(page, perPage, page > 1);
+    if (isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      await refreshProperties(page, perPage, true);
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   useEffect(() => {
@@ -348,6 +379,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addNotification,
         contactInfo,
         loading,
+        isLoadingMore,
         user,
         isLoggedIn: !!user,
         refreshProperties,

@@ -22,13 +22,6 @@ export function usePropertyFilters(properties: Property[], lang: Language) {
   const [sortType, setSortType] = useState<SortType>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    const timeout = window.setTimeout(() => setIsLoading(false), 300);
-    return () => window.clearTimeout(timeout);
-  }, [search, typeFilter, catFilter, priceRange, sortType, sortDir]);
 
   useEffect(() => {
     setPage(1);
@@ -115,7 +108,6 @@ export function usePropertyFilters(properties: Property[], lang: Language) {
     page,
     setPage,
     hasMore,
-    isLoading,
     handleSort,
     resetAllFilters,
   };
