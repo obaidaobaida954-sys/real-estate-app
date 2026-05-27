@@ -62,9 +62,26 @@ export function SavedPage() {
                     exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
-                    <PropertyCard
-                      property={p}
-                      onClick={() => setSelectedProperty(p)}
+                    
+                  <PropertyCard
+                    property={p}
+                    onClick={() => setSelectedProperty(p)}
+                    isFavorite={favorites.has(p.id)}
+                    onToggleFavorite={toggleFavorite}
+                    formattedPrice={formatPrice(p.price)}
+                    lang={lang}
+                    labels={{
+                      badge: t(
+                        p.type === "sale" ? "badge_sale" : "badge_rent",
+                      ),
+                      rooms: t("rooms"),
+                      baths: t("baths"),
+                      bath: t("bath"),
+                      sqm: t("sqm"),
+                      per_month: t("per_month"),
+                      fav_add: t("fav_add"),
+                      fav_remove: t("fav_remove"),
+                    }}
                     />
                   </motion.div>
                 ))}

@@ -136,8 +136,7 @@ function PropertyCardInner({
               <Bath className="w-4 h-4 text-amber-500" />
               <span>
                 {property.bathrooms}{" "}
-                {property.bathrooms > 1 ? t("baths") : t("bath")}
-              </span>
+                {property.bathrooms > 1 ? labels.baths : labels.bath}              </span>
             </motion.div>
           )}
 
