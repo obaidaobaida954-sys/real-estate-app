@@ -55,7 +55,7 @@ function ProtectedAdminRoute({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getSession();
-      if (!data.session) {
+      if (!data.session?.user) {
         setStatus('denied');
         return;
       }
@@ -65,6 +65,11 @@ function ProtectedAdminRoute({ children }: { children: React.ReactNode }) {
         .select('is_admin')
         .eq('id', data.session.user.id)
         .single();
+
+      if (!profile) {
+        setStatus('denied');
+        return;
+      }
 
       setStatus(profile?.is_admin === true ? 'ok' : 'denied');
     })();

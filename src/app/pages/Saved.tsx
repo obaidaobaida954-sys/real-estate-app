@@ -9,13 +9,29 @@ import { Property } from "@/lib/supabase";
 import { motion, AnimatePresence } from "motion/react";
 
 export function SavedPage() {
-  const { t, properties, favorites, lang, isLoggedIn } = useAppContext();
+  const {
+    t,
+    properties,
+    favorites,
+    lang,
+    isLoggedIn,
+    toggleFavorite,
+  } = useAppContext();
+
   const navigate = useNavigate();
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null,
-  );
+
+  const [selectedProperty, setSelectedProperty] =
+    useState<Property | null>(null);
 
   const savedProperties = properties.filter((p) => favorites.has(p.id));
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat(lang === "ar" ? "ar-EG" : "en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
 
   return (
     <AnimatedPage className="pt-2">
@@ -27,10 +43,13 @@ export function SavedPage() {
             aria-label={t("saved_back")}
           >
             <ChevronRight
-              className={`w-5 h-5 ${lang === "en" ? "rotate-180" : ""}`}
+              className={'w-5 h-5 ${lang === "en" ? "rotate-180" : ""}'}
             />
           </button>
-          <h2 className="text-xl font-bold text-text-main">{t("nav_saved")}</h2>
+
+          <h2 className="text-xl font-bold text-text-main">
+            {t("nav_saved")}
+          </h2>
         </div>
       </header>
 
@@ -40,6 +59,7 @@ export function SavedPage() {
             <p className="text-text-main text-lg font-bold mb-4">
               {t("must_login_to_view_saved")}
             </p>
+
             <button
               onClick={() => navigate("/auth")}
               className="px-5 py-3 rounded-xl bg-emerald-500 text-white font-medium"
@@ -49,6 +69,7 @@ export function SavedPage() {
             </button>
           </div>
         )}
+
         {isLoggedIn !== false && (
           <AnimatePresence mode="popLayout">
             {savedProperties.length > 0 ? (
@@ -59,29 +80,51 @@ export function SavedPage() {
                     layout
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.9,
+                      filter: "blur(4px)",
+                    }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
-                    
-                  <PropertyCard
-                    property={p}
-                    onClick={() => setSelectedProperty(p)}
-                    isFavorite={favorites.has(p.id)}
-                    onToggleFavorite={toggleFavorite}
-                    formattedPrice={formatPrice(p.price)}
-                    lang={lang}
-                    labels={{
-                      badge: t(
-                        p.type === "sale" ? "badge_sale" : "badge_rent",
-                      ),
-                      rooms: t("rooms"),
-                      baths: t("baths"),
-                      bath: t("bath"),
-                      sqm: t("sqm"),
-                      per_month: t("per_month"),
-                      fav_add: t("fav_add"),
-                      fav_remove: t("fav_remove"),
-                    }}
+                    <PropertyCard
+                      property={p}
+                      onClick={() => setSelectedProperty(p)}
+                      isFavorite={favorites.has(p.id)}
+                      onToggleFavorite={toggleFavorite}
+                      formattedPrice={formatPrice(p.price)}
+                      lang={lang}
+                      labels={{
+                        badge:
+                          p.type === "sale"
+                            ? lang === "ar"
+                              ? "للبيع"
+                              : "For Sale"
+                            : lang === "ar"
+                              ? "للإيجار"
+                              : "For Rent",
+
+                        rooms: lang === "ar" ? "غرف" : "rooms",
+
+                        baths: lang === "ar" ? "حمامات" : "bathaas",
+
+                        bath: lang === "ar" ? "حمام" : "bath",
+
+                        sqm: lang === "ar" ? "م²" : "sqm",
+
+                        per_month:
+                          lang === "ar" ? "/شهريًا" : "/month",
+
+                        fav_add:
+                          lang === "ar"
+                            ? "إضافة للمفضلة"
+                            : "Add to favorites",
+
+                        fav_remove:
+                          lang === "ar"
+                            ? "إزالة من المفضلة"
+                            : "Remove from favorites",
+                      }}
                     />
                   </motion.div>
                 ))}
@@ -100,9 +143,11 @@ export function SavedPage() {
                     strokeWidth={1.5}
                   />
                 </div>
+
                 <p className="text-text-main text-xl font-bold mb-2">
                   {t("saved_empty")}
                 </p>
+
                 <p className="text-text-muted text-sm max-w-[200px] leading-relaxed">
                   {t("saved_empty_hint")}
                 </p>
