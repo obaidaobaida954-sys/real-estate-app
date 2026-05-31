@@ -171,7 +171,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [lang],
   );
 
-  const refreshProperties = async (page = 1, perPage = 12, append = false) => {
+  const refreshProperties = useCallback(async (page = 1, perPage = 12, append = false) => {
     const start = (page - 1) * perPage;
     const end = start + perPage - 1;
     let attempts = 0;
@@ -223,9 +223,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       }
     }
-  };
+  }, [t]);
 
-  const refreshNotifications = async (opts?: { limit?: number }) => {
+  const refreshNotifications = useCallback(async (opts?: { limit?: number }) => {
     const limit = opts?.limit ?? 10;
     try {
       const { data, error } = await supabase
@@ -245,7 +245,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       logger.error("refreshNotifications failed", err);
     }
-  };
+  }, [setNotifications]);
 
   const addNotification = (title: string, message: string) => {
     const nextNotification: AppNotification = {
@@ -261,7 +261,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setNotifications((prev) => [nextNotification, ...prev].slice(0, 20));
   };
 
-  const refreshContactInfo = async () => {
+  const refreshContactInfo = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("contact_info")
@@ -300,7 +300,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         logger.error("Failed to load contact cache", e);
       }
     }
-  };
+  }, []);
 
   const loadMoreProperties = async (page = 1, perPage = 12) => {
     if (isLoadingMore) return;
@@ -323,7 +323,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     };
     init();
-  }, []);
+  }, [refreshProperties,
+      refreshNotifications,
+      refreshContactInfo,
+  ]);
 
   const toggleFavorite = (id: string) => {
     if (!user) {

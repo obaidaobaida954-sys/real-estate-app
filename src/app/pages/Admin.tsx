@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import type { LucideIcon } from "lucide-react";
 import {
   Trash2,
-  Plus,
   Edit2,
   BarChart2,
   LogOut,
-  AlertCircle,
   Loader as Loader2,
 } from "lucide-react";
 import {
@@ -460,6 +458,7 @@ export function AdminPage() {
   const editFormRef = useRef<HTMLDivElement>(null);
 
   const handleApiError = (err: unknown, userFacingKey: string) => {
+    console.error("FULL ADMIN ERROR:");
     logger.error("Admin API error", err);
     toast.error(t(userFacingKey));
   };

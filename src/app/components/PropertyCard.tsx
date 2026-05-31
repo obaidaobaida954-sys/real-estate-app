@@ -32,6 +32,7 @@ function PropertyCardInner({
   formattedPrice,
   lang,
   labels,
+  showContactButton,
 }: PropertyCardProps) {
   const isFav = isFavorite;
 
@@ -74,6 +75,9 @@ function PropertyCardInner({
             >
               {labels.badge}
             </span>
+            {showContactButton && (
+              <button className="bg-blue-500 text-white px-3 py-1 rounded">Contact</button>
+            )}
           </motion.div>
 
           <button

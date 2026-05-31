@@ -12,16 +12,13 @@ import {
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { PropertyCard } from "../components/PropertyCard";
-import { PropertyCardSkeleton } from "../components/PropertyCardSkeleton";
 import { PropertyModal } from "../components/PropertyModal";
 import { AnimatedPage } from "../components/AnimatedPage";
 import { NotificationBell } from "../components/NotificationBell";
 import { Property } from "@/lib/supabase";
 import { usePropertyFilters } from "../hooks/usePropertyFilters";
 import { usePageTitle } from "../hooks/usePageTitle";
-import { useDebounce } from "../hooks/useDebounce";
 import { motion, AnimatePresence } from "motion/react";
-
 const DEFAULT_PRICE_MAX = 10000000;
 
 export function HomePage() {
@@ -35,11 +32,9 @@ export function HomePage() {
     loadMoreProperties,
     formatPrice,
   } = useAppContext();
-  const [searchInput, setSearchInput] = useState("");
-  const search = useDebounce(searchInput, 300);
 
   const {
-    search: _,
+    search,
     setSearch,
     typeFilter,
     setTypeFilter,
@@ -59,7 +54,12 @@ export function HomePage() {
     handleSort,
     resetAllFilters,
   } = usePropertyFilters(properties, lang);
-  const [loadingMore, setLoadingMore] = useState(false);
+
+  const [loadingMore, setLoadingMore] = useState(false); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
+  const start = (currentPage - 1) * itemsPerPage;
+  const paginatedProperties = visibleProperties.slice(start, start + itemsPerPage);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null,
   );
@@ -82,9 +82,7 @@ export function HomePage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [sortMenuOpen, setSortMenuOpen]);
 
-  React.useEffect(() => {
-    setSearch(search);
-  }, [search, setSearch]);
+ 
 
   const categories = [
     { id: "all", icon: Map, label: "cat_all" },
@@ -95,7 +93,7 @@ export function HomePage() {
   ];
 
   const handleResetAllFilters = () => {
-    setSearchInput("");
+    setSearch("");
     resetAllFilters();
   };
 
@@ -170,8 +168,8 @@ export function HomePage() {
           </div>
           <input
             type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder={t("search_placeholder")}
             className="w-full h-14 bg-surface-1/50 backdrop-blur-xl border border-border-subtle rounded-[20px] pr-12 pl-4 text-text-main placeholder:text-text-muted focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all shadow-sm"
           />
@@ -379,7 +377,7 @@ export function HomePage() {
             </div>
           ) : filteredProperties.length > 0 ? (
             <AnimatePresence mode="popLayout">
-              {visibleProperties.map((p, index) => (
+              {paginatedProperties.map((p, index) => (
                 <motion.div
                   key={p.id}
                   layout
@@ -395,6 +393,7 @@ export function HomePage() {
                     onToggleFavorite={toggleFavorite}
                     formattedPrice={formatPrice(p.price)}
                     lang={lang}
+                    showContactButton={true}
                     labels={{
                       badge: t(
                         p.type === "sale" ? "badge_sale" : "badge_rent",
@@ -410,6 +409,39 @@ export function HomePage() {
                   />
                 </motion.div>
               ))}
+              <div className="flex justify-center items-center gap-4 mt-8">
+
+  {/* Prev */}
+  <button
+    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+    className="px-4 py-2 rounded-lg border bg-white hover:bg-gray-100 transition disabled:opacity-50"
+    disabled={currentPage === 1}
+  >
+    {lang === "ar" ? "السابق" : "Prev"}
+  </button>
+
+  {/* Page Number */}
+  <span className="px-4 py-2 text-sm text-gray-600">
+    {lang === "ar"
+      ? 'الصفحة ${currentPage}'
+      : 'Page ${currentPage}'}
+  </span>
+
+  {/* Next */}
+  <button
+    onClick={() =>
+      setCurrentPage((p) =>
+        start + itemsPerPage < visibleProperties.length ? p + 1 : p
+      )
+    }
+    className="px-4 py-2 rounded-lg border bg-blue-500 text-white hover:bg-blue-600 transition disabled:opacity-50"
+    disabled={start + itemsPerPage >= visibleProperties.length}
+  >
+    {lang === "ar" ? "التالي" : "Next"}
+  </button>
+
+</div>
+              
             </AnimatePresence>
           ) : (
             <motion.div
