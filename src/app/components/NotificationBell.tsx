@@ -85,7 +85,7 @@ export function NotificationBell() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className={`absolute top-12 ${lang === "ar" ? "right-0 left-auto" : "left-0 right-auto"} w-96 max-w-[calc(100vw-2rem)] max-h-96 bg-surface-1/95 backdrop-blur-xl border border-border-subtle rounded-2xl shadow-2xl overflow-hidden z-50`}
+              className={`absolute top-12 ${lang === "ar" ? "left-0" : "right-0"} w-96 max-w-[calc(100vw-2rem)] max-h-96 bg-surface-1/95 backdrop-blur-xl border border-border-subtle rounded-2xl shadow-2xl overflow-hidden z-50`}
             >
               <div className="flex items-center justify-between p-4 border-b border-border-subtle">
                 <h3 className="text-text-main font-bold">
@@ -131,7 +131,7 @@ export function NotificationBell() {
                             markAsRead(notification.id);
                           }
                         }}
-                        className={`p-4 border-b border-border-subtle/30 cursor-pointer transition-colors ${
+                        className={`p-5 border-b border-border-subtle/30 cursor-pointer transition-colors ${
                           !isRead
                             ? "bg-amber-500/5 hover:bg-amber-500/10"
                             : "hover:bg-surface-2"
@@ -141,17 +141,17 @@ export function NotificationBell() {
                           {!isRead && (
                             <motion.div className="w-2 h-2 mt-1.5 rounded-full bg-amber-500 flex-shrink-0" />
                           )}
-                          <motion.div className="flex-1">
+                          <motion.div className={`flex-1 ${lang === "ar" ? "text-right" : "text-left"}`}>
                             <h4
-                              className={`text-sm font-bold mb-1 ${!isRead ? "text-text-main" : "text-text-sub"}`}
+                              className={`text-base font-bold mb-1 ${!isRead ? "text-text-main" : "text-text-sub"}`}
                             >
                               {notification.title}
                             </h4>
-                            <p className="text-xs text-text-muted leading-relaxed mb-1 whitespace-normal break-words">
+                            <p className="text-sm text-text-muted leading-relaxed mb-1 whitespace-normal break-words">
                               {notification.message}
                             </p>
                             {notification.createdAt && (
-                              <p className="text-xs text-text-muted">
+                              <p className="text- [11px] text-text-muted opacity-70 mt-2">
                                 {relativeDate(notification.createdAt, lang)}
                               </p>
                             )}

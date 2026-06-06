@@ -172,10 +172,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const refreshProperties = useCallback(async (page = 1, perPage = 12, append = false) => {
+    setLoading(true);
     const start = (page - 1) * perPage;
     const end = start + perPage - 1;
     let attempts = 0;
     const maxAttempts = 2;
+    
 
     while (attempts < maxAttempts) {
       try {
@@ -186,7 +188,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .range(start, end);
         if (error) throw error;
         const list = data || [];
-        setProperties((prev) => {
+        setLoading(false);
+        setProperties(prev => {
           const next = append ? [...prev, ...list] : list;
           try {
             localStorage.setItem(
@@ -223,6 +226,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       }
     }
+    setLoading(false);
   }, [t]);
 
   const refreshNotifications = useCallback(async (opts?: { limit?: number }) => {

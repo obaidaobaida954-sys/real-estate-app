@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Loader as Loader2,
+  TestTubeDiagonal,
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { PropertyCard } from "../components/PropertyCard";
@@ -19,6 +20,7 @@ import { Property } from "@/lib/supabase";
 import { usePropertyFilters } from "../hooks/usePropertyFilters";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { motion, AnimatePresence } from "motion/react";
+import { SkeletonCard } from "../components/skeletonCard";
 const DEFAULT_PRICE_MAX = 10000000;
 
 export function HomePage() {
@@ -59,14 +61,28 @@ export function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
   const start = (currentPage - 1) * itemsPerPage;
+  const totalPages = Math.ceil(visibleProperties.length / itemsPerPage);
   const paginatedProperties = visibleProperties.slice(start, start + itemsPerPage);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null,
   );
   const [priceFilterOpen, setPriceFilterOpen] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement>(null);
+  const fetchProperties = async () => {
+    console.log("No API - using local data only");
+    
+   
+    // Assuming the API returns an array of properties
+    // You can set these properties in your context or state
+  };
+
+  useEffect(() => {
+    console.log("filter changed:", typeFilter);
+    fetchProperties();
+  }, [typeFilter]);
 
   usePageTitle("page_home");
+  
 
   useEffect(() => {
     if (!sortMenuOpen) return;
@@ -218,7 +234,7 @@ export function HomePage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-wrap gap-2 mb-6 justify-start"
+          className="grid grid-cols-5 gap-2 mb-6 justify-start"
         >
           {categories.map((cat) => {
             const isActive = catFilter === cat.id;
@@ -226,7 +242,7 @@ export function HomePage() {
               <button
                 key={cat.id}
                 onClick={() => setCatFilter(cat.id as typeof catFilter)}
-                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-xl transition-all duration-300 ${
+                className={`w-full flex items-center justify-around gap-1 py-2 text-xs rounded-xl transition-all duration-300 ${
                   isActive
                     ? "bg-gradient-to-br from-amber-400 to-amber-600 text-stone-900 shadow-[0_8px_20px_-6px_rgba(245,158,11,0.5)] font-bold"
                     : "bg-surface-1 border border-border-subtle text-text-muted hover:bg-surface-2 hover:text-text-main shadow-sm font-medium"
@@ -371,11 +387,14 @@ export function HomePage() {
 
         <div className="flex flex-col gap-6">
           {loading ? (
-            <div className="py-20 flex flex-col items-center justify-center gap-4">
-              <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
-              <p className="text-text-muted text-sm">{t("loading")}</p>
-            </div>
-          ) : filteredProperties.length > 0 ? (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {Array(6)
+      .fill(0)
+      .map((_, i) => (
+        <SkeletonCard key={i} />
+      ))}
+  </div>
+) : filteredProperties.length > 0 ? (
             <AnimatePresence mode="popLayout">
               {paginatedProperties.map((p, index) => (
                 <motion.div
@@ -414,28 +433,24 @@ export function HomePage() {
   {/* Prev */}
   <button
     onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-    className="px-4 py-2 rounded-lg border bg-white hover:bg-gray-100 transition disabled:opacity-50"
     disabled={currentPage === 1}
+    className="bg-gradient-to-br from-amber-400 to-amber-600 text-stone-900 font-bold shadow-[0_8px_20px_-6px_rgba(245,158,11,0.5)] flex-1 py-3 rounded-full flex items-center justify-center disabled:opacity-50 disabled:corsor-not-allowed"
   >
     {lang === "ar" ? "السابق" : "Prev"}
   </button>
 
   {/* Page Number */}
-  <span className="px-4 py-2 text-sm text-gray-600">
-    {lang === "ar"
-      ? 'الصفحة ${currentPage}'
-      : 'Page ${currentPage}'}
+  <span className="text-white font-bold px-4">
+    
+      {currentPage} / {totalPages}
+      
   </span>
 
   {/* Next */}
   <button
-    onClick={() =>
-      setCurrentPage((p) =>
-        start + itemsPerPage < visibleProperties.length ? p + 1 : p
-      )
-    }
-    className="px-4 py-2 rounded-lg border bg-blue-500 text-white hover:bg-blue-600 transition disabled:opacity-50"
-    disabled={start + itemsPerPage >= visibleProperties.length}
+    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+    disabled={currentPage === totalPages}
+    className="bg-gradient-to-br from-amber-400 to-amber-600 text-stone-900 font-bold shadow-[0_8px_20px_-6px_rgba(245,158,11,0.5)] flex-1 py-3 rounded-full flex items-center justify-center disabled:opacity-50 disabled:corsor-not-allowed"
   >
     {lang === "ar" ? "التالي" : "Next"}
   </button>
@@ -493,7 +508,7 @@ export function HomePage() {
               ) : (
                 properties.length > 0 && (
                   <p className="text-center text-sm text-text-muted py-4">
-                    {t("all_properties_shown")}
+                    {t("all_properties_shown_in_this_page")}
                   </p>
                 )
               )}

@@ -455,7 +455,11 @@ export function AdminPage() {
     [],
   );
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState("");
   const editFormRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(2);
+  const limit = 20;
 
   const handleApiError = (err: unknown, userFacingKey: string) => {
     console.error("FULL ADMIN ERROR:");
@@ -529,9 +533,12 @@ export function AdminPage() {
   const loadProperties = useCallback(async () => {
     setLoading(true);
     try {
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
       const { data, error } = await supabase
         .from("properties")
         .select("*")
+        .range(from, to)
         .order("created_at", { ascending: false });
       if (error) throw error;
       setProperties(data || []);
@@ -745,6 +752,36 @@ export function AdminPage() {
       toast.error(t("admin_err_delete_notification"));
     }
   };
+  const createNotification = async () => {
+  if (!notificationTitle.trim() || !notificationMessage.trim()) {
+    toast.error("يرجى إدخال العنوان والرسالة");
+    return;
+  }
+
+  try {
+    const { error } = await supabase.from("notifications").insert([
+      {
+        title: notificationTitle.trim(),
+        message: notificationMessage.trim(),
+      },
+    ]);
+
+    if (error) throw error;
+
+    toast.success("تم إرسال الإشعار");
+
+    setNotificationTitle("");
+    setNotificationMessage("");
+
+    await loadAdminNotifications();
+    await refreshNotifications();
+  } catch (err) {
+    console.error("Notification error", err);
+    logger.error("Create notification failed", err);
+    toast.error("فشل إرسال الإشعار");
+  }
+};
+
 
   if (authLoading) {
     return (
@@ -1038,6 +1075,30 @@ export function AdminPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
+              <div className="mb-6 space-y-3">
+  <input
+    type="text"
+    placeholder="عنوان الإشعار"
+    value={notificationTitle}
+    onChange={(e) => setNotificationTitle(e.target.value)}
+    className="w-full px-4 py-3 bg-surface-1 border border-border-subtle rounded-xl text-text-main"
+  />
+
+  <textarea
+    placeholder="نص الإشعار"
+    value={notificationMessage}
+    onChange={(e) => setNotificationMessage(e.target.value)}
+    className="w-full px-4 py-3 bg-surface-1 border border-border-subtle rounded-xl text-text-main min-h-[120px]"
+  />
+
+  <button
+    type="button"
+    onClick={createNotification}
+    className="px-5 py-3 rounded-xl bg-amber-500 text-stone-900 font-bold"
+  >
+    إرسال إشعار
+  </button>
+</div>
               {notificationsLoading ? (
                 <div className="flex justify-center py-20">
                   <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />

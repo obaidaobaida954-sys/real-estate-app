@@ -94,6 +94,7 @@ export function SavedPage() {
                       onToggleFavorite={toggleFavorite}
                       formattedPrice={formatPrice(p.price)}
                       lang={lang}
+                      showContactButton={true}
                       labels={{
                         badge:
                           p.type === "sale"

@@ -12,6 +12,7 @@ interface PropertyCardProps {
   onToggleFavorite: (id: string) => void;
   formattedPrice: string;
   lang: "ar" | "en";
+  showContactButton?: boolean;
   labels: {
     badge: string;
     rooms: string;
@@ -171,7 +172,8 @@ const propsAreEqual = (prev: PropertyCardProps, next: PropertyCardProps) => {
     prev.property.id === next.property.id &&
     prev.isFavorite === next.isFavorite &&
     prev.formattedPrice === next.formattedPrice &&
-    prev.lang === next.lang
+    prev.lang === next.lang &&
+    prev.showContactButton === next.showContactButton
   );
 };
 

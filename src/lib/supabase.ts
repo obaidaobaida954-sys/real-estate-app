@@ -8,9 +8,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   logger.error(
     `[Aqari] Missing Supabase environment variables. Copy .env.example to .env and fill in your credentials.`,
   );
+  throw new Error("Missing Supabase environment variables");
 }
 
-export const supabase = createClient(supabaseUrl ?? "", supabaseAnonKey ?? "");
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export type Property = {
   id: string;
