@@ -151,7 +151,7 @@ export function NotificationBell() {
                               {notification.message}
                             </p>
                             {notification.createdAt && (
-                              <p className="text- [11px] text-text-muted opacity-70 mt-2">
+                              <p className="text-[11px] text-text-muted opacity-70 mt-2">
                                 {relativeDate(notification.createdAt, lang)}
                               </p>
                             )}

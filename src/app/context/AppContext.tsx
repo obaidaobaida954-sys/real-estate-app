@@ -16,6 +16,7 @@ import {
   getSession,
   onAuthStateChange,
 } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import logger from "@/lib/logger";
 import { validateContactInfo } from "@/lib/validators";
@@ -48,7 +49,7 @@ interface AppContextType {
   contactInfo: ContactInfo | null;
   loading: boolean;
   isLoadingMore: boolean;
-  user: { id: string; email?: string } | null;
+  user: User | null;
   isLoggedIn: boolean;
   refreshProperties: (
     page?: number,
@@ -98,9 +99,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const favorites = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+
   const formatters = useMemo(
     () => ({
       usd: new Intl.NumberFormat("en-US", {

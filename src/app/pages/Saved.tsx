@@ -16,6 +16,7 @@ export function SavedPage() {
     lang,
     isLoggedIn,
     toggleFavorite,
+    formatPrice,
   } = useAppContext();
 
   const navigate = useNavigate();
@@ -24,14 +25,6 @@ export function SavedPage() {
     useState<Property | null>(null);
 
   const savedProperties = properties.filter((p) => favorites.has(p.id));
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat(lang === "ar" ? "ar-EG" : "en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
 
   return (
     <AnimatedPage className="pt-2">
@@ -43,7 +36,7 @@ export function SavedPage() {
             aria-label={t("saved_back")}
           >
             <ChevronRight
-              className={'w-5 h-5 ${lang === "en" ? "rotate-180" : ""}'}
+              className={`w-5 h-5 ${lang === "en" ? "rotate-180" : ""}`}
             />
           </button>
 
@@ -73,7 +66,7 @@ export function SavedPage() {
         {isLoggedIn !== false && (
           <AnimatePresence mode="popLayout">
             {savedProperties.length > 0 ? (
-              <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {savedProperties.map((p, index) => (
                   <motion.div
                     key={p.id}
@@ -86,6 +79,7 @@ export function SavedPage() {
                       filter: "blur(4px)",
                     }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="h-full"
                   >
                     <PropertyCard
                       property={p}
@@ -96,35 +90,16 @@ export function SavedPage() {
                       lang={lang}
                       showContactButton={true}
                       labels={{
-                        badge:
-                          p.type === "sale"
-                            ? lang === "ar"
-                              ? "للبيع"
-                              : "For Sale"
-                            : lang === "ar"
-                              ? "للإيجار"
-                              : "For Rent",
-
-                        rooms: lang === "ar" ? "غرف" : "rooms",
-
-                        baths: lang === "ar" ? "حمامات" : "bathaas",
-
-                        bath: lang === "ar" ? "حمام" : "bath",
-
-                        sqm: lang === "ar" ? "م²" : "sqm",
-
-                        per_month:
-                          lang === "ar" ? "/شهريًا" : "/month",
-
-                        fav_add:
-                          lang === "ar"
-                            ? "إضافة للمفضلة"
-                            : "Add to favorites",
-
-                        fav_remove:
-                          lang === "ar"
-                            ? "إزالة من المفضلة"
-                            : "Remove from favorites",
+                        badge: t(
+                          p.type === "sale" ? "badge_sale" : "badge_rent",
+                        ),
+                        rooms: t("rooms"),
+                        baths: t("baths"),
+                        bath: t("bath"),
+                        sqm: t("sqm"),
+                        per_month: t("per_month"),
+                        fav_add: t("fav_add"),
+                        fav_remove: t("fav_remove"),
                       }}
                     />
                   </motion.div>

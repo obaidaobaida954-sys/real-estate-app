@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ChevronUp,
   Loader as Loader2,
-  TestTubeDiagonal,
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { PropertyCard } from "../components/PropertyCard";
@@ -22,6 +21,21 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { motion, AnimatePresence } from "motion/react";
 import { SkeletonCard } from "../components/skeletonCard";
 const DEFAULT_PRICE_MAX = 10000000;
+
+const categories = [
+  { id: "all", icon: Map, label: "cat_all" },
+  { id: "house", icon: House, label: "cat_houses" },
+  { id: "apartment", icon: Building2, label: "cat_apartments" },
+  { id: "commercial", icon: Store, label: "cat_commercial" },
+  { id: "land", icon: TreePine, label: "cat_land" },
+];
+
+const categoryTitleKeys = {
+  house: "title_cat_house",
+  apartment: "title_cat_apartment",
+  commercial: "title_cat_commercial",
+  land: "title_cat_land",
+} as const;
 
 export function HomePage() {
   const {
@@ -57,32 +71,13 @@ export function HomePage() {
     resetAllFilters,
   } = usePropertyFilters(properties, lang);
 
-  const [loadingMore, setLoadingMore] = useState(false); 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
-  const start = (currentPage - 1) * itemsPerPage;
-  const totalPages = Math.ceil(visibleProperties.length / itemsPerPage);
-  const paginatedProperties = visibleProperties.slice(start, start + itemsPerPage);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null,
   );
   const [priceFilterOpen, setPriceFilterOpen] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement>(null);
-  const fetchProperties = async () => {
-    console.log("No API - using local data only");
-    
-   
-    // Assuming the API returns an array of properties
-    // You can set these properties in your context or state
-  };
-
-  useEffect(() => {
-    console.log("filter changed:", typeFilter);
-    fetchProperties();
-  }, [typeFilter]);
 
   usePageTitle("page_home");
-  
 
   useEffect(() => {
     if (!sortMenuOpen) return;
@@ -100,17 +95,10 @@ export function HomePage() {
 
  
 
-  const categories = [
-    { id: "all", icon: Map, label: "cat_all" },
-    { id: "house", icon: House, label: "cat_houses" },
-    { id: "apartment", icon: Building2, label: "cat_apartments" },
-    { id: "commercial", icon: Store, label: "cat_commercial" },
-    { id: "land", icon: TreePine, label: "cat_land" },
-  ];
-
   const handleResetAllFilters = () => {
     setSearch("");
     resetAllFilters();
+    setPage(1);
   };
 
   const hasActiveFilters =
@@ -120,12 +108,8 @@ export function HomePage() {
     priceRange[0] !== 0 ||
     priceRange[1] !== DEFAULT_PRICE_MAX;
 
-  const categoryTitleKeys = {
-    house: "title_cat_house",
-    apartment: "title_cat_apartment",
-    commercial: "title_cat_commercial",
-    land: "title_cat_land",
-  } as const;
+  const totalPages = Math.ceil(filteredProperties.length / 6);
+  const paginatedProperties = filteredProperties.slice((page - 1) * 6, page * 6);
 
   const getDynamicTitle = () => {
     if (typeFilter === "all" && catFilter === "all")
@@ -136,7 +120,7 @@ export function HomePage() {
   };
 
   return (
-    <AnimatedPage className="pt-2">
+    <AnimatedPage className="pt-2 pb-28">
       <div className="px-5 pt-8 pb-4">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
@@ -172,7 +156,7 @@ export function HomePage() {
         </div>
       </div>
 
-      <main className="flex-1 px-5 pt-4 overflow-y-auto w-full">
+      <main className="px-5 pt-4 w-full">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -385,16 +369,14 @@ export function HomePage() {
           </div>
         </motion.div>
 
-        <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {Array(6)
-      .fill(0)
-      .map((_, i) => (
-        <SkeletonCard key={i} />
-      ))}
-  </div>
-) : filteredProperties.length > 0 ? (
+            Array(6)
+              .fill(0)
+              .map((_, i) => (
+                <SkeletonCard key={i} />
+              ))
+          ) : filteredProperties.length > 0 ? (
             <AnimatePresence mode="popLayout">
               {paginatedProperties.map((p, index) => (
                 <motion.div
@@ -404,6 +386,7 @@ export function HomePage() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
+                  className="h-full"
                 >
                   <PropertyCard
                     property={p}
@@ -428,41 +411,12 @@ export function HomePage() {
                   />
                 </motion.div>
               ))}
-              <div className="flex justify-center items-center gap-4 mt-8">
-
-  {/* Prev */}
-  <button
-    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-    disabled={currentPage === 1}
-    className="bg-gradient-to-br from-amber-400 to-amber-600 text-stone-900 font-bold shadow-[0_8px_20px_-6px_rgba(245,158,11,0.5)] flex-1 py-3 rounded-full flex items-center justify-center disabled:opacity-50 disabled:corsor-not-allowed"
-  >
-    {lang === "ar" ? "السابق" : "Prev"}
-  </button>
-
-  {/* Page Number */}
-  <span className="text-white font-bold px-4">
-    
-      {currentPage} / {totalPages}
-      
-  </span>
-
-  {/* Next */}
-  <button
-    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-    disabled={currentPage === totalPages}
-    className="bg-gradient-to-br from-amber-400 to-amber-600 text-stone-900 font-bold shadow-[0_8px_20px_-6px_rgba(245,158,11,0.5)] flex-1 py-3 rounded-full flex items-center justify-center disabled:opacity-50 disabled:corsor-not-allowed"
-  >
-    {lang === "ar" ? "التالي" : "Next"}
-  </button>
-
-</div>
-              
             </AnimatePresence>
           ) : (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="py-20 text-center"
+              className="py-20 text-center col-span-full"
             >
               <Search className="mx-auto mb-4 w-12 h-12 text-text-muted/70" />
               <p className="text-xl font-bold text-text-main mb-2">
@@ -479,47 +433,38 @@ export function HomePage() {
               </button>
             </motion.div>
           )}
-
-          {!loading && filteredProperties.length > 0 && (
-            <div className="mt-6 space-y-4">
-              {hasMore ? (
-                <div className="flex justify-center">
-                  <button
-                    onClick={async () => {
-                      setLoadingMore(true);
-                      await loadMoreProperties(page + 1);
-                      setPage((current) => current + 1);
-                      setLoadingMore(false);
-                    }}
-                    disabled={loadingMore}
-                    aria-busy={loadingMore}
-                    className={`px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-stone-900 font-semibold transition-all flex items-center gap-2 ${
-                      loadingMore
-                        ? "opacity-70 pointer-events-none"
-                        : "hover:shadow-lg"
-                    }`}
-                  >
-                    {loadingMore ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : null}
-                    <span>{t("load_more")}</span>
-                  </button>
-                </div>
-              ) : (
-                properties.length > 0 && (
-                  <p className="text-center text-sm text-text-muted py-4">
-                    {t("all_properties_shown_in_this_page")}
-                  </p>
-                )
-              )}
-              {loadingMore && (
-                <div className="flex justify-center py-4">
-                  <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
-                </div>
-              )}
-            </div>
-          )}
         </div>
+
+        {/* Pagination Controls */}
+        {!loading && totalPages > 1 && (
+          <div className="mt-12 mb-8 flex items-center justify-center gap-4">
+            <button
+              onClick={() => {
+                setPage(Math.max(1, page - 1));
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              disabled={page === 1}
+              className="px-6 py-3 rounded-xl bg-surface-1 border border-border-subtle text-text-main font-semibold transition-all hover:bg-surface-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2"
+            >
+              {lang === "ar" ? "السابق" : "Prev"}
+            </button>
+            
+            <div className="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-sm">
+              {page} / {totalPages}
+            </div>
+
+            <button
+              onClick={() => {
+                setPage(Math.min(totalPages, page + 1));
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              disabled={page === totalPages}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-stone-900 font-semibold transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2"
+            >
+              {lang === "ar" ? "التالي" : "Next"}
+            </button>
+          </div>
+        )}
       </main>
 
       <PropertyModal

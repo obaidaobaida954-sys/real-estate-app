@@ -49,7 +49,7 @@ function PropertyCardInner({
     <motion.div
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
-      className="relative rounded-[24px] overflow-hidden bg-surface-0 border border-border-subtle cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 group"
+      className="relative flex flex-col h-full rounded-[24px] overflow-hidden bg-surface-0 border border-border-subtle cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 group"
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -61,7 +61,7 @@ function PropertyCardInner({
         }
       }}
     >
-      <motion.div className="relative h-[220px] w-full overflow-hidden p-2 pb-0">
+      <motion.div className="relative h-[220px] w-full overflow-hidden p-2 pb-0 shrink-0">
         <motion.div className="relative w-full h-full rounded-[18px] overflow-hidden">
           <motion.div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent z-10 pointer-events-none" />
           <ImageWithFallback
@@ -112,15 +112,17 @@ function PropertyCardInner({
         </motion.div>
       </motion.div>
 
-      <motion.div className="px-5 py-4">
-        <h4 className="font-bold text-text-main text-[16px] mb-2 truncate group-hover:text-amber-500 transition-colors">
-          {title}
-        </h4>
+      <motion.div className="px-5 py-4 flex-1 flex flex-col justify-between">
+        <div className="mb-4">
+          <h4 className="font-bold text-text-main text-[16px] mb-2 line-clamp-1 group-hover:text-amber-500 transition-colors">
+            {title}
+          </h4>
 
-        <p className="text-text-muted text-xs mb-3 truncate flex items-center gap-1">
-          <MapPin className="w-3 h-3 text-amber-500 shrink-0" />
-          {location}
-        </p>
+          <p className="text-text-muted text-xs truncate flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-amber-500 shrink-0" />
+            {location}
+          </p>
+        </div>
 
         <motion.div className="flex items-center gap-3 text-text-muted text-xs font-medium overflow-hidden">
           {property.rooms > 0 && (

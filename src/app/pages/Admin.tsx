@@ -80,7 +80,7 @@ interface PropertyFormProps {
 function UrlPreview({ url }: { url: string }) {
   const { t } = useAppContext();
   const [valid, setValid] = useState<boolean | null>(null);
-  const debounceRef = React.useRef<number | null>(null);
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     if (!url) {
@@ -88,7 +88,7 @@ function UrlPreview({ url }: { url: string }) {
       return;
     }
     setValid(null);
-    debounceRef.current = window.setTimeout(() => {
+    debounceRef.current = setTimeout(() => {
       const img = new Image();
       img.onload = () => setValid(true);
       img.onerror = () => setValid(false);
@@ -96,17 +96,18 @@ function UrlPreview({ url }: { url: string }) {
     }, 600);
     return () => {
       if (debounceRef.current !== null) {
-        window.clearTimeout(debounceRef.current);
+        clearTimeout(debounceRef.current);
       }
     };
   }, [url]);
-  if (!url) return null;
-  if (valid === true)
+
+  if (valid === null) return null;
+  if (valid)
     return (
       <img
         src={url}
-        alt="preview"
-        className="h-32 rounded-lg object-cover"
+        alt="Preview"
+        className="h-32 w-full object-cover rounded-lg border border-border-subtle"
         loading="lazy"
         decoding="async"
       />
@@ -128,13 +129,13 @@ function PropertyForm({
 }: PropertyFormProps) {
   const { t } = useAppContext();
 
-  const set = <K extends keyof PropertyFormData>(
+  const set = <K extends keyof FormState>(
     key: K,
-    value: PropertyFormData[K],
+    value: FormState[K],
   ) => onChange({ ...data, [key]: value });
 
   const [mainImageValid, setMainImageValid] = useState<boolean | null>(null);
-  const debounceRef = React.useRef<number | null>(null);
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     const url = data.image_url;
@@ -143,7 +144,7 @@ function PropertyForm({
       return;
     }
     setMainImageValid(null);
-    debounceRef.current = window.setTimeout(() => {
+    debounceRef.current = setTimeout(() => {
       const img = new Image();
       img.onload = () => setMainImageValid(true);
       img.onerror = () => setMainImageValid(false);
@@ -151,7 +152,7 @@ function PropertyForm({
     }, 600);
     return () => {
       if (debounceRef.current !== null) {
-        window.clearTimeout(debounceRef.current);
+        clearTimeout(debounceRef.current);
       }
     };
   }, [data.image_url]);
