@@ -24,7 +24,7 @@ export default defineConfig({
     port: 5175,
     reuseExistingServer: false,
     env: {
-      VITE_ADMIN_PASSWORD: process.env.PLAYWRIGHT_VITE_ADMIN_PASSWORD ?? 'test-admin'
+      VITE_ADMIN_PASSWORD: process.env.PLAYWRIGHT_VITE_ADMIN_PASSWORD
     }
   },
 });

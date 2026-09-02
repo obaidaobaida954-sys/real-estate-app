@@ -2,10 +2,10 @@
   "name": "aqari",
   "private": true,
   "version": "0.0.1",
-  "type": "module",
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "preview": "vite preview",
     "migrate:apply": "bash ./scripts/apply_migrations.sh",
     "migrate:status": "echo 'Check supabase/migrations/ for pending files'",
     "ci:build": "vite build --reporter silent",
@@ -65,9 +65,9 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^7.2.0",
+    "@eslint/js": "^9.0.0",
     "@playwright/test": "1.43.0",
     "@tailwindcss/postcss": "^4.3.0",
-    "@tailwindcss/vite": "4.1.12",
     "@types/google.maps": "^3.58.1",
     "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.0",
@@ -77,10 +77,11 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
     "prettier": "^3.8.3",
     "tailwindcss": "4.1.12",
     "typescript": "^5.3.3",
-    "typescript-eslint": "^8.60.0",
+    "typescript-eslint": "^8.61.1",
     "vite": "6.3.5"
   },
   "peerDependencies": {

@@ -61,7 +61,7 @@ interface AppContextType {
   loadMoreProperties: (page?: number, perPage?: number) => Promise<void>;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+const AppContext = createContext<AppContextType>({} as AppContextType);
 
 const isValidPropertyArray = (data: unknown): data is Property[] => {
   if (!Array.isArray(data) || data.length > 1000) return false;
